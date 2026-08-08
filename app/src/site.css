@@ -55,14 +55,56 @@
   background: color-mix(in srgb, var(--tx-white) 88%, transparent);
   box-shadow: 0 1px 0 rgba(28, 28, 28, 0.08);
   left: 0; position: fixed; right: 0; top: 0; z-index: 40;
+  transition: background 260ms ease, box-shadow 260ms ease;
 }
 .tx-nav-inner {
   align-items: center; display: flex; gap: clamp(1rem, 3vw, 2.5rem);
   height: 4.75rem; justify-content: space-between;
   margin: 0 auto; max-width: var(--tx-max); padding-inline: var(--tx-gutter); width: 100%;
+  position: relative; z-index: 1;
 }
 .tx-mark { display: inline-flex; align-items: center; }
 .tx-mark img { display: block; height: 2.35rem; width: auto; }
+.tx-mark .tx-mark-light { display: none; }
+
+/* --- nav over the scroll-scrub film ---------------------------------------
+   On the three journey pages the bar starts transparent so the opening frame
+   is not cropped by a white slab, and goes solid once the film has scrolled
+   past (see SiteNav's overMedia prop).
+
+   Transparent does NOT mean unprotected: the film is a moving image, so the
+   type needs its own contrast floor. Sampled the top 76px — the strip the bar
+   occupies — across every frame of all eleven clips: luminance runs 0–107 of
+   255, mean 3–82, i.e. consistently dark with ana-02 the brightest. The scrim
+   below is sized for that worst case and fades out well before the bar's
+   bottom edge, so it reads as a soft vignette on the film rather than a bar. */
+.tx-nav[data-over-media="true"] {
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.tx-nav[data-over-media="true"]::before {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--tx-abyss) 62%, transparent),
+    color-mix(in srgb, var(--tx-abyss) 34%, transparent) 55%,
+    transparent
+  );
+  content: ""; inset: 0; pointer-events: none; position: absolute;
+}
+.tx-nav[data-over-media="true"] .tx-mark-dark { display: none; }
+.tx-nav[data-over-media="true"] .tx-mark-light { display: block; }
+.tx-nav[data-over-media="true"] .tx-nav-link { color: var(--tx-white); }
+.tx-nav[data-over-media="true"] .tx-nav-link::after { background: var(--tx-leaf); }
+.tx-nav[data-over-media="true"] .tx-nav-link[data-active="true"] { color: var(--tx-leaf); }
+/* The filled pill would sink into a dark frame; lift it to leaf green on ink. */
+.tx-nav[data-over-media="true"] .tx-cta-primary {
+  background: var(--tx-leaf); color: var(--tx-abyss);
+}
+.tx-nav[data-over-media="true"] .tx-cta-primary:hover {
+  background: var(--tx-white);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--tx-white) 28%, transparent);
+}
 .tx-nav-links { display: none; gap: 1.6rem; }
 @media (min-width: 1000px) { .tx-nav-links { display: flex; } }
 
@@ -122,6 +164,12 @@
   padding: 0.32rem 0.8rem; text-transform: uppercase;
 }
 .tx-page .scroll-scrub__route-button { font-family: var(--tx-text); letter-spacing: 0.16em; }
+/* The engine parks its chapter switcher at the top of the sticky stage, which
+   is exactly where the site's fixed header sits. It used to be hidden behind
+   the opaque bar; now that the bar is transparent over the film it would land
+   on top of the CTA. Drop it clear of the header — an offset override here, so
+   the engine's own stylesheet stays untouched. */
+.tx-page .scroll-scrub__route { top: calc(4.75rem + clamp(0.75rem, 2vw, 1.25rem)); }
 
 /* --- the banded product world -------------------------------------------- */
 

@@ -30,7 +30,7 @@ const JOURNEY_SCENES: ScrollScrubScene[] = homeScenes.map((scene, index) =>
 function Index() {
   return (
     <div className="tx-page">
-      <SiteNav />
+      <SiteNav overMedia />
       <main>
         <ScrollScrub scenes={JOURNEY_SCENES} theme={scrollScrubTheme} />
 

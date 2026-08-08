@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 /** Shared arrow. Each CTA garment styles it through currentColor. */
 export function Arrow() {
@@ -17,12 +18,69 @@ const NAV = [
   { label: "Bize Ulaşın", to: "/bize-ulasin" },
 ] as const;
 
-export function SiteNav() {
+/**
+ * Sits over the scroll-scrub film on the three journey pages and goes solid the
+ * moment the film scrolls away.
+ *
+ * `overMedia` is a prop rather than something the nav sniffs for itself, so the
+ * prerendered HTML already carries the right state and the header never flashes
+ * white over the opening frame before hydration.
+ *
+ * The switch point is the bottom edge of the .scroll-scrub section: while any of
+ * the film is still behind the bar, the bar stays transparent. Read straight off
+ * the element rather than a hard-coded offset, so it keeps working if a scene's
+ * scroll length changes. The engine itself is untouched — this only reads its
+ * geometry.
+ */
+export function SiteNav({ overMedia = false }: { overMedia?: boolean } = {}) {
+  const [transparent, setTransparent] = useState(overMedia);
+
+  useEffect(() => {
+    if (!overMedia) return;
+
+    const nav = document.querySelector<HTMLElement>(".tx-nav");
+    const media = document.querySelector<HTMLElement>(".scroll-scrub");
+    if (!nav || !media) return;
+
+    let frame = 0;
+    const read = () => {
+      frame = 0;
+      setTransparent(media.getBoundingClientRect().bottom > nav.offsetHeight);
+    };
+    const onScroll = () => {
+      // One read per painted frame; the scroll event itself fires far more often.
+      if (!frame) frame = window.requestAnimationFrame(read);
+    };
+
+    read();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [overMedia]);
+
   return (
-    <header className="tx-nav">
+    <header className="tx-nav" data-over-media={transparent ? "true" : undefined}>
       <div className="tx-nav-inner">
         <Link className="tx-mark" to="/">
-          <img alt="Tropix" height="110" src="/assets/tropix-logo.png" width="237" />
+          <img
+            alt="Tropix"
+            className="tx-mark-dark"
+            height="110"
+            src="/assets/tropix-logo.png"
+            width="237"
+          />
+          <img
+            alt=""
+            aria-hidden="true"
+            className="tx-mark-light"
+            height="110"
+            src="/assets/tropix-logo-white.png"
+            width="237"
+          />
         </Link>
         <nav aria-label="Ana menü" className="tx-nav-links">
           {NAV.map((item) => (

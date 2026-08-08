@@ -17,7 +17,7 @@ export const Route = createFileRoute("/hakkimizda")({
 function Hakkimizda() {
   return (
     <div className="tx-page">
-      <SiteNav />
+      <SiteNav overMedia />
       <main>
         <ScrollScrub scenes={productionScenes} theme={scrollScrubTheme} />
         <StatRow />

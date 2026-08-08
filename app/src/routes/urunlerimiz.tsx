@@ -112,7 +112,7 @@ export function ProductBand({
 function Urunlerimiz() {
   return (
     <div className="tx-page">
-      <SiteNav />
+      <SiteNav overMedia />
       <main>
         <ScrollScrub scenes={productScenes} theme={scrollScrubTheme} />
         {BANDS.map((band, index) => (
