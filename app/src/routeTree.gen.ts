@@ -9,11 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UrunlerimizRouteImport } from './routes/urunlerimiz'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as KariyerRouteImport } from './routes/kariyer'
+import { Route as HakkimizdaRouteImport } from './routes/hakkimizda'
+import { Route as BizeUlasinRouteImport } from './routes/bize-ulasin'
+import { Route as BayilikRouteImport } from './routes/bayilik'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 
+const UrunlerimizRoute = UrunlerimizRouteImport.update({
+  id: '/urunlerimiz',
+  path: '/urunlerimiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -22,6 +32,26 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KariyerRoute = KariyerRouteImport.update({
+  id: '/kariyer',
+  path: '/kariyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HakkimizdaRoute = HakkimizdaRouteImport.update({
+  id: '/hakkimizda',
+  path: '/hakkimizda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BizeUlasinRoute = BizeUlasinRouteImport.update({
+  id: '/bize-ulasin',
+  path: '/bize-ulasin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BayilikRoute = BayilikRouteImport.update({
+  id: '/bayilik',
+  path: '/bayilik',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -38,39 +68,94 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/bayilik': typeof BayilikRoute
+  '/bize-ulasin': typeof BizeUlasinRoute
+  '/hakkimizda': typeof HakkimizdaRoute
+  '/kariyer': typeof KariyerRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/urunlerimiz': typeof UrunlerimizRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/bayilik': typeof BayilikRoute
+  '/bize-ulasin': typeof BizeUlasinRoute
+  '/hakkimizda': typeof HakkimizdaRoute
+  '/kariyer': typeof KariyerRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/urunlerimiz': typeof UrunlerimizRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/bayilik': typeof BayilikRoute
+  '/bize-ulasin': typeof BizeUlasinRoute
+  '/hakkimizda': typeof HakkimizdaRoute
+  '/kariyer': typeof KariyerRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/urunlerimiz': typeof UrunlerimizRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/robots.txt' | '/sitemap.xml'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/bayilik'
+    | '/bize-ulasin'
+    | '/hakkimizda'
+    | '/kariyer'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/urunlerimiz'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/robots.txt' | '/sitemap.xml'
-  id: '__root__' | '/' | '/app' | '/robots.txt' | '/sitemap.xml'
+  to:
+    | '/'
+    | '/app'
+    | '/bayilik'
+    | '/bize-ulasin'
+    | '/hakkimizda'
+    | '/kariyer'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/urunlerimiz'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/bayilik'
+    | '/bize-ulasin'
+    | '/hakkimizda'
+    | '/kariyer'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/urunlerimiz'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  BayilikRoute: typeof BayilikRoute
+  BizeUlasinRoute: typeof BizeUlasinRoute
+  HakkimizdaRoute: typeof HakkimizdaRoute
+  KariyerRoute: typeof KariyerRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UrunlerimizRoute: typeof UrunlerimizRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/urunlerimiz': {
+      id: '/urunlerimiz'
+      path: '/urunlerimiz'
+      fullPath: '/urunlerimiz'
+      preLoaderRoute: typeof UrunlerimizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -83,6 +168,34 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kariyer': {
+      id: '/kariyer'
+      path: '/kariyer'
+      fullPath: '/kariyer'
+      preLoaderRoute: typeof KariyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hakkimizda': {
+      id: '/hakkimizda'
+      path: '/hakkimizda'
+      fullPath: '/hakkimizda'
+      preLoaderRoute: typeof HakkimizdaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bize-ulasin': {
+      id: '/bize-ulasin'
+      path: '/bize-ulasin'
+      fullPath: '/bize-ulasin'
+      preLoaderRoute: typeof BizeUlasinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bayilik': {
+      id: '/bayilik'
+      path: '/bayilik'
+      fullPath: '/bayilik'
+      preLoaderRoute: typeof BayilikRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -105,8 +218,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  BayilikRoute: BayilikRoute,
+  BizeUlasinRoute: BizeUlasinRoute,
+  HakkimizdaRoute: HakkimizdaRoute,
+  KariyerRoute: KariyerRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UrunlerimizRoute: UrunlerimizRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

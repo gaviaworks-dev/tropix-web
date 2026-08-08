@@ -1,0 +1,79 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The deploy needs to mint an OIDC token for the Pages deployment and write the
+# Pages environment; read access to the repo is enough for everything else.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. `cancel-in-progress: false` because cancelling a
+# half-finished Pages deployment can leave the site in a broken state — let it
+# land, then run the next one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static site
+    runs-on: ubuntu-latest
+    # The app project lives in app/; every build step runs there.
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('app/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Resolves where this site will actually be served from. For a project
+      # site that is https://<owner>.github.io/<repo>/, so base_path is
+      # "/tropix-web"; if the repo is ever renamed, or moved to a user site or
+      # a custom domain, these outputs follow and no file needs editing.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # Prerenders the six routes to static HTML in app/dist-static/client and
+      # adds .nojekyll / 404.html / robots.txt / sitemap.xml. Does not touch the
+      # Cloudflare Worker build (`bun run build`), which still writes to dist/.
+      - name: Build static site
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
+        run: bun run build:static
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/dist-static/client
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
