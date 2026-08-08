@@ -20,7 +20,7 @@
  * Nothing in this script touches app source; it only writes into the build
  * output directory.
  */
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -90,59 +90,6 @@ function notFoundHtml() {
 `;
 }
 
-// The scroll-scrub engine only starts fetching a clip when its band comes
-// within 1.5 viewport heights, and it must download the file WHOLE before it
-// can attach a <video>. Measured on the deployed site with a cold cache and a
-// human-paced scroll, that is far too late: every scene was still showing its
-// poster when the reader reached it, and the clips only landed after the whole
-// page had been scrolled past.
-//
-// So we tell the browser about the clips up front. Each prerendered page gets
-// preload hints for exactly the clips it uses, derived from the poster URLs the
-// engine already rendered into the markup — no scene list to keep in sync here,
-// and no change to the engine, the components or the media.
-//
-// Priorities mirror reading order: the first clip is what you see immediately,
-// so it goes high and gets the bandwidth; the rest go low and fill in while you
-// read the opening chapter. `as="fetch"` (not "video") because the engine loads
-// them with fetch() into a blob — that is what makes the preload reusable.
-//
-// `crossorigin` is REQUIRED, even though these are same-origin. An `as="fetch"`
-// preload is issued in CORS mode, and it is only reused by the engine's later
-// fetch() when the two agree on credentials. Measured: without the attribute
-// every clip downloads TWICE (preload + fetch); with bare `crossorigin`
-// (anonymous) the fetch hits the preload and downloads once;
-// `crossorigin="use-credentials"` double-downloads again.
-//
-// The media queries mirror the engine's own mobile test so a phone never pulls
-// the desktop set, nor a desktop the mobile one. Deliberately level-3 syntax:
-// the level-4 form `not ((hover: none) and (pointer: coarse)) and (…)` was
-// measured NOT to match anywhere, silently disabling the desktop hints.
-// `(pointer: fine)` is the portable inverse of the engine's coarse-pointer test.
-const MOBILE_MEDIA = "(hover: none) and (pointer: coarse), (max-width: 860px)";
-const DESKTOP_MEDIA = "(pointer: fine) and (min-width: 861px)";
-
-function clipPreloadTags(html) {
-  const desktop = [];
-  const mobile = [];
-  // Posters are emitted as <img src="…-poster.jpg"> and, when a mobile variant
-  // exists, <source srcSet="…-mobile-poster.jpg">. Clip names differ only by
-  // dropping "-poster" and swapping the extension.
-  for (const [, url] of html.matchAll(/(?:src|srcSet)="([^"]*\/assets\/world\/[^"]*-poster\.jpg)"/g)) {
-    const clip = url.replace(/-poster\.jpg$/, ".mp4");
-    const bucket = url.includes("-mobile-poster.jpg") ? mobile : desktop;
-    if (!bucket.includes(clip)) bucket.push(clip);
-  }
-
-  const tag = (href, media, first) =>
-    `<link rel="preload" as="fetch" crossorigin href="${href}" media="${media}" fetchpriority="${first ? "high" : "low"}">`;
-
-  return [
-    ...desktop.map((href, i) => tag(href, DESKTOP_MEDIA, i === 0)),
-    ...mobile.map((href, i) => tag(href, MOBILE_MEDIA, i === 0)),
-  ].join("");
-}
-
 function robotsTxt() {
   return `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}sitemap.xml\n`;
 }
@@ -183,17 +130,6 @@ async function main() {
     process.exit(1);
   }
 
-  // Inject the clip preload hints into each prerendered page.
-  let hinted = 0;
-  for (const route of ROUTES) {
-    const file = join(CLIENT_DIR, route, "index.html");
-    const html = await readFile(file, "utf8");
-    const tags = clipPreloadTags(html);
-    if (!tags) continue;
-    await writeFile(file, html.replace("</head>", `${tags}</head>`));
-    hinted += 1;
-  }
-
   await writeFile(join(CLIENT_DIR, ".nojekyll"), "");
   await writeFile(join(CLIENT_DIR, "404.html"), notFoundHtml());
   await writeFile(join(CLIENT_DIR, "robots.txt"), robotsTxt());
@@ -205,7 +141,7 @@ async function main() {
   console.log(`[finalize-static] ${CLIENT_DIR}`);
   console.log(`[finalize-static] base=${BASE_PATH} site=${SITE_URL}`);
   console.log(
-    `[finalize-static] wrote .nojekyll, 404.html, robots.txt, sitemap.xml; clip preload hints on ${hinted} page(s); removed dist-static/server`,
+    `[finalize-static] wrote .nojekyll, 404.html, robots.txt, sitemap.xml; removed dist-static/server`,
   );
 }
 
