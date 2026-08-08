@@ -201,7 +201,13 @@
   align-items: center; border-bottom: 2px solid var(--tx-leaf); color: var(--tx-green-logo);
   display: inline-flex; font-family: var(--tx-display); font-size: 0.85rem; font-weight: 600;
   gap: 0.45rem; padding-bottom: 3px; text-decoration: none; transition: gap 220ms ease;
+  white-space: nowrap;
 }
+/* The Arrow svg carries only a viewBox, so without an explicit size it falls
+   back to the 300×150 default for replaced elements and squeezes its sibling
+   text — the phone number was wrapping to three lines. Same size as
+   .tx-cta-band svg, its visual sibling. */
+.tx-cta-line svg { height: 0.66rem; width: 0.85rem; }
 .tx-cta-line:hover { gap: 0.85rem; }
 
 /* --- footer: structured but not sprawling --------------------------------- */
