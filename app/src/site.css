@@ -164,12 +164,14 @@
   padding: 0.32rem 0.8rem; text-transform: uppercase;
 }
 .tx-page .scroll-scrub__route-button { font-family: var(--tx-text); letter-spacing: 0.16em; }
-/* The engine parks its chapter switcher at the top of the sticky stage, which
-   is exactly where the site's fixed header sits. It used to be hidden behind
-   the opaque bar; now that the bar is transparent over the film it would land
-   on top of the CTA. Drop it clear of the header — an offset override here, so
-   the engine's own stylesheet stays untouched. */
-.tx-page .scroll-scrub__route { top: calc(4.75rem + clamp(0.75rem, 2vw, 1.25rem)); }
+/* The engine parks a chapter switcher ("Kaynak / Öz / …") at the top of the
+   sticky stage. It sat behind the opaque bar and was invisible; once the bar
+   went transparent over the film it surfaced right next to the real nav and
+   read as a second, competing menu. Dropped from the site — the film is meant
+   to be scrolled, not jumped through, and the header is the only menu.
+   Hidden here rather than in the engine's own stylesheet, which stays
+   untouched; the buttons remain in the markup for the engine's bookkeeping. */
+.tx-page .scroll-scrub__route { display: none; }
 
 /* --- the banded product world -------------------------------------------- */
 
